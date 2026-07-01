@@ -5,6 +5,7 @@ use std::path::{Path, PathBuf};
 fn main() {
     println!("cargo:rerun-if-changed=build.rs");
     println!("cargo:rerun-if-changed=src/unix/newlib/mod.rs");
+    println!("cargo:rerun-if-changed=src/unix/newlib/generic.rs");
     println!("cargo:rerun-if-changed=src/unix/newlib/mochios.rs");
 
     let Some(upstream) = find_upstream_newlib_mod() else {
@@ -12,9 +13,23 @@ fn main() {
     };
 
     let source = fs::read_to_string(&upstream).expect("failed to read upstream libc newlib/mod.rs");
+    let upstream_dir = upstream
+        .parent()
+        .expect("upstream newlib/mod.rs should have a parent directory");
+    let manifest_dir =
+        PathBuf::from(env::var_os("CARGO_MANIFEST_DIR").expect("CARGO_MANIFEST_DIR not set"));
+    let generic_path = normalize_path(manifest_dir.join("src/unix/newlib/generic.rs"));
+    let mochios_path = normalize_path(manifest_dir.join("src/unix/newlib/mochios.rs"));
+
+    let source = source.replace(
+        "mod generic;",
+        &format!("#[path = \"{generic_path}\"]\nmod generic;"),
+    );
     let needle = "} else if #[cfg(target_arch = \"aarch64\")] {";
-    let replacement = "} else if #[cfg(target_os = \"mochios\")] {\n        mod mochios;\n        pub use self::mochios::*;\n    } else if #[cfg(target_arch = \"aarch64\")] {";
-    let patched = source.replace(needle, replacement);
+    let replacement = format!(
+        "}} else if #[cfg(target_os = \"mochios\")] {{\n        #[path = \"{mochios_path}\"]\n        mod mochios;\n        pub use self::mochios::*;\n    }} else if #[cfg(target_arch = \"aarch64\")] {{"
+    );
+    let patched = source.replace(needle, &replacement);
     if patched == source {
         panic!("failed to patch upstream libc newlib/mod.rs for mochios");
     }
@@ -36,4 +51,8 @@ fn find_upstream_newlib_mod() -> Option<PathBuf> {
         }
     }
     None
+}
+
+fn normalize_path(path: PathBuf) -> String {
+    path.display().to_string().replace('\\', "\\\\")
 }
