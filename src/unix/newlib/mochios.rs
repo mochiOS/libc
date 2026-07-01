@@ -160,4 +160,13 @@ extern "C" {
     pub fn readv(fd: c_int, iov: *const crate::iovec, iovcnt: c_int) -> ssize_t;
     pub fn dirfd(dirp: *mut crate::DIR) -> c_int;
     pub fn setgroups(ngroups: c_int, grouplist: *const crate::gid_t) -> c_int;
+    pub fn waitpid(pid: crate::pid_t, status: *mut c_int, options: c_int) -> crate::pid_t;
+    pub fn posix_spawn(
+        pid: *mut crate::pid_t,
+        path: *const c_char,
+        file_actions: *const c_void,
+        attrp: *const c_void,
+        argv: *const *mut c_char,
+        envp: *const *mut c_char,
+    ) -> c_int;
 }
