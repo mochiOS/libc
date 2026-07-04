@@ -75,7 +75,15 @@ pub const EAI_SERVICE: c_int = 9;
 pub const EAI_SYSTEM: c_int = 11;
 pub const EAI_OVERFLOW: c_int = 14;
 
-pub use crate::unix::newlib::generic::{dirent, sigset_t, stat};
+pub use crate::unix::newlib::generic::{sigset_t, stat};
+
+s! {
+    pub struct dirent {
+        pub d_ino: u64,
+        pub d_type: c_uchar,
+        pub d_name: [c_char; 256usize],
+    }
+}
 
 pub const SIG_BLOCK: c_int = 1;
 pub const SIG_UNBLOCK: c_int = 2;
