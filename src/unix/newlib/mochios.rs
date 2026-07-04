@@ -50,6 +50,20 @@ pub const AT_REMOVEDIR: c_int = 8;
 
 pub const O_DIRECTORY: c_int = 0x200000;
 pub const O_NOFOLLOW: c_int = 0x100000;
+pub const O_CLOEXEC: c_int = 0x80000;
+
+pub const STDIN_FILENO: c_int = 0;
+pub const STDOUT_FILENO: c_int = 1;
+pub const STDERR_FILENO: c_int = 2;
+
+pub const FD_CLOEXEC: c_int = 1;
+pub const F_GETFD: c_int = 1;
+pub const F_SETFD: c_int = 2;
+pub const F_GETFL: c_int = 3;
+pub const F_SETFL: c_int = 4;
+
+pub const SIG_DFL: size_t = 0;
+pub const SIG_ERR: size_t = !0usize;
 
 pub const POLLIN: c_short = 0x1;
 pub const POLLPRI: c_short = 0x2;
@@ -166,8 +180,20 @@ extern "C" {
     ) -> c_int;
     pub fn writev(fd: c_int, iov: *const crate::iovec, iovcnt: c_int) -> ssize_t;
     pub fn readv(fd: c_int, iov: *const crate::iovec, iovcnt: c_int) -> ssize_t;
+    pub fn pipe(fds: *mut c_int) -> c_int;
+    pub fn pipe2(fds: *mut c_int, flags: c_int) -> c_int;
+    pub fn fork() -> crate::pid_t;
+    pub fn execvp(file: *const c_char, argv: *const *const c_char) -> c_int;
+    pub fn dup2(oldfd: c_int, newfd: c_int) -> c_int;
+    pub fn fcntl(fd: c_int, cmd: c_int, ...) -> c_int;
+    pub fn signal(signum: c_int, handler: size_t) -> size_t;
     pub fn dirfd(dirp: *mut crate::DIR) -> c_int;
     pub fn setgroups(ngroups: c_int, grouplist: *const crate::gid_t) -> c_int;
+    pub fn setgid(gid: crate::gid_t) -> c_int;
+    pub fn setuid(uid: crate::uid_t) -> c_int;
+    pub fn setpgid(pid: crate::pid_t, pgid: crate::pid_t) -> c_int;
+    pub fn setsid() -> crate::pid_t;
+    pub fn chroot(path: *const c_char) -> c_int;
     pub fn waitpid(pid: crate::pid_t, status: *mut c_int, options: c_int) -> crate::pid_t;
     pub fn posix_spawn(
         pid: *mut crate::pid_t,
