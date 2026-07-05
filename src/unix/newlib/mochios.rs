@@ -2,6 +2,7 @@ use crate::prelude::*;
 
 pub type clock_t = c_long;
 pub type wchar_t = u32;
+pub type posix_spawn_file_actions_t = *mut c_void;
 
 s! {
     pub struct sockaddr {
@@ -65,6 +66,11 @@ pub const F_SETFL: c_int = 4;
 pub const SIG_DFL: size_t = 0;
 pub const SIG_ERR: size_t = !0usize;
 
+pub const POSIX_SPAWN_SETPGROUP: c_int = 0x01;
+pub const POSIX_SPAWN_SETSIGDEF: c_int = 0x04;
+pub const POSIX_SPAWN_SETSIGMASK: c_int = 0x08;
+pub const POSIX_SPAWN_SETSID: c_int = 0x80;
+
 pub const POLLIN: c_short = 0x1;
 pub const POLLPRI: c_short = 0x2;
 pub const POLLOUT: c_short = 0x4;
@@ -92,6 +98,11 @@ pub const EAI_OVERFLOW: c_int = 14;
 pub use crate::unix::newlib::generic::{sigset_t, stat};
 
 s! {
+    pub struct posix_spawnattr_t {
+        __flags: c_short,
+        __pgroup: crate::pid_t,
+    }
+
     pub struct dirent {
         pub d_ino: u64,
         pub d_type: c_uchar,
@@ -195,11 +206,30 @@ extern "C" {
     pub fn setsid() -> crate::pid_t;
     pub fn chroot(path: *const c_char) -> c_int;
     pub fn waitpid(pid: crate::pid_t, status: *mut c_int, options: c_int) -> crate::pid_t;
+    pub fn posix_spawnattr_init(attr: *mut posix_spawnattr_t) -> c_int;
+    pub fn posix_spawnattr_destroy(attr: *mut posix_spawnattr_t) -> c_int;
+    pub fn posix_spawnattr_setflags(attr: *mut posix_spawnattr_t, flags: c_short) -> c_int;
+    pub fn posix_spawnattr_setpgroup(attr: *mut posix_spawnattr_t, pgroup: crate::pid_t) -> c_int;
+    pub fn posix_spawnattr_setsigdefault(
+        attr: *mut posix_spawnattr_t,
+        sigdefault: *const sigset_t,
+    ) -> c_int;
+    pub fn posix_spawn_file_actions_init(actions: *mut posix_spawn_file_actions_t) -> c_int;
+    pub fn posix_spawn_file_actions_destroy(actions: *mut posix_spawn_file_actions_t) -> c_int;
+    pub fn posix_spawn_file_actions_addclose(
+        actions: *mut posix_spawn_file_actions_t,
+        fd: c_int,
+    ) -> c_int;
+    pub fn posix_spawn_file_actions_adddup2(
+        actions: *mut posix_spawn_file_actions_t,
+        fd: c_int,
+        newfd: c_int,
+    ) -> c_int;
     pub fn posix_spawn(
         pid: *mut crate::pid_t,
         path: *const c_char,
-        file_actions: *const c_void,
-        attrp: *const c_void,
+        file_actions: *const posix_spawn_file_actions_t,
+        attrp: *const posix_spawnattr_t,
         argv: *const *mut c_char,
         envp: *const *mut c_char,
     ) -> c_int;
