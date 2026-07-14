@@ -53,6 +53,42 @@ pub const O_DIRECTORY: c_int = 0x200000;
 pub const O_NOFOLLOW: c_int = 0x100000;
 pub const O_CLOEXEC: c_int = 0x80000;
 
+pub const _SC_OPEN_MAX: c_int = 4;
+pub const _SC_PAGESIZE: c_int = 8;
+pub const _SC_PAGE_SIZE: c_int = _SC_PAGESIZE;
+pub const _SC_NPROCESSORS_CONF: c_int = 9;
+pub const _SC_NPROCESSORS_ONLN: c_int = 10;
+pub const _SC_THREAD_STACK_MIN: c_int = 39;
+pub const _SC_GETPW_R_SIZE_MAX: c_int = 51;
+pub const _SC_HOST_NAME_MAX: c_int = 65;
+
+pub const PROT_NONE: c_int = 0x0;
+pub const PROT_READ: c_int = 0x1;
+pub const PROT_WRITE: c_int = 0x2;
+pub const PROT_EXEC: c_int = 0x4;
+
+pub const MAP_SHARED: c_int = 0x1;
+pub const MAP_PRIVATE: c_int = 0x2;
+pub const MAP_FIXED: c_int = 0x10;
+pub const MAP_ANON: c_int = 0x20;
+pub const MAP_ANONYMOUS: c_int = MAP_ANON;
+pub const MAP_STACK: c_int = 0x20000;
+pub const MAP_NORESERVE: c_int = 0x4000;
+pub const MAP_POPULATE: c_int = 0x8000;
+pub const MAP_HUGETLB: c_int = 0x40000;
+pub const MAP_HUGE_SHIFT: c_int = 26;
+pub const MAP_HUGE_MASK: c_int = 0x3f << MAP_HUGE_SHIFT;
+pub const MAP_FAILED: *mut c_void = !0isize as *mut c_void;
+
+pub const MS_ASYNC: c_int = 0x1;
+pub const MS_SYNC: c_int = 0x2;
+
+pub const MADV_NORMAL: c_int = 0;
+pub const MADV_RANDOM: c_int = 1;
+pub const MADV_SEQUENTIAL: c_int = 2;
+pub const MADV_WILLNEED: c_int = 3;
+pub const MADV_DONTNEED: c_int = 4;
+
 pub const STDIN_FILENO: c_int = 0;
 pub const STDOUT_FILENO: c_int = 1;
 pub const STDERR_FILENO: c_int = 2;
@@ -191,6 +227,19 @@ extern "C" {
     ) -> c_int;
     pub fn writev(fd: c_int, iov: *const crate::iovec, iovcnt: c_int) -> ssize_t;
     pub fn readv(fd: c_int, iov: *const crate::iovec, iovcnt: c_int) -> ssize_t;
+    pub fn mmap(
+        addr: *mut c_void,
+        len: size_t,
+        prot: c_int,
+        flags: c_int,
+        fd: c_int,
+        offset: crate::off_t,
+    ) -> *mut c_void;
+    pub fn munmap(addr: *mut c_void, len: size_t) -> c_int;
+    pub fn mprotect(addr: *mut c_void, len: size_t, prot: c_int) -> c_int;
+    pub fn madvise(addr: *mut c_void, len: size_t, advice: c_int) -> c_int;
+    pub fn msync(addr: *mut c_void, len: size_t, flags: c_int) -> c_int;
+    pub fn sysconf(name: c_int) -> c_long;
     pub fn pipe(fds: *mut c_int) -> c_int;
     pub fn pipe2(fds: *mut c_int, flags: c_int) -> c_int;
     pub fn fork() -> crate::pid_t;
@@ -198,6 +247,7 @@ extern "C" {
     pub fn dup2(oldfd: c_int, newfd: c_int) -> c_int;
     pub fn fcntl(fd: c_int, cmd: c_int, ...) -> c_int;
     pub fn signal(signum: c_int, handler: size_t) -> size_t;
+    pub fn lstat(path: *const c_char, stat_buf: *mut crate::stat) -> c_int;
     pub fn dirfd(dirp: *mut crate::DIR) -> c_int;
     pub fn setgroups(ngroups: c_int, grouplist: *const crate::gid_t) -> c_int;
     pub fn setgid(gid: crate::gid_t) -> c_int;
