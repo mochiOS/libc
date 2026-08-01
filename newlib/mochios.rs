@@ -131,9 +131,29 @@ pub const EAI_SERVICE: c_int = 9;
 pub const EAI_SYSTEM: c_int = 11;
 pub const EAI_OVERFLOW: c_int = 14;
 
-pub use crate::unix::newlib::generic::{sigset_t, stat};
+pub use crate::unix::newlib::generic::sigset_t;
 
 s! {
+    pub struct stat {
+        pub st_dev: c_short,
+        pub st_ino: c_ushort,
+        pub st_mode: c_uint,
+        pub st_nlink: c_ushort,
+        pub st_uid: c_ushort,
+        pub st_gid: c_ushort,
+        pub st_rdev: c_short,
+        pub st_size: c_long,
+        pub st_atime: c_long,
+        pub st_atime_nsec: c_long,
+        pub st_mtime: c_long,
+        pub st_mtime_nsec: c_long,
+        pub st_ctime: c_long,
+        pub st_ctime_nsec: c_long,
+        pub st_blksize: c_long,
+        pub st_blocks: c_long,
+        pub st_spare4: [c_long; 2usize],
+    }
+
     pub struct posix_spawnattr_t {
         __flags: c_short,
         __pgroup: crate::pid_t,
@@ -145,6 +165,14 @@ s! {
         pub d_name: [c_char; 256usize],
     }
 }
+
+const _: [(); 104] = [(); core::mem::size_of::<stat>()];
+const _: [(); 8] = [(); core::mem::align_of::<stat>()];
+const _: [(); 4] = [(); core::mem::offset_of!(stat, st_mode)];
+const _: [(); 16] = [(); core::mem::offset_of!(stat, st_size)];
+const _: [(); 24] = [(); core::mem::offset_of!(stat, st_atime)];
+const _: [(); 72] = [(); core::mem::offset_of!(stat, st_blksize)];
+const _: [(); 88] = [(); core::mem::offset_of!(stat, st_spare4)];
 
 pub const SIG_BLOCK: c_int = 1;
 pub const SIG_UNBLOCK: c_int = 2;
