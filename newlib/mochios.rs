@@ -311,4 +311,12 @@ extern "C" {
         argv: *const *mut c_char,
         envp: *const *mut c_char,
     ) -> c_int;
+    pub fn posix_spawnp(
+        pid: *mut crate::pid_t,
+        file: *const c_char,
+        file_actions: *const posix_spawn_file_actions_t,
+        attrp: *const posix_spawnattr_t,
+        argv: *const *mut c_char,
+        envp: *const *mut c_char,
+    ) -> c_int;
 }
