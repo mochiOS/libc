@@ -4,6 +4,8 @@ pub type clock_t = c_long;
 pub type wchar_t = u32;
 pub type posix_spawn_file_actions_t = *mut c_void;
 
+const _: [(); 4] = [(); core::mem::size_of::<crate::pthread_t>()];
+
 s! {
     pub struct sockaddr {
         pub sa_family: super::sa_family_t,
@@ -246,6 +248,30 @@ safe_f! {
 }
 
 extern "C" {
+    pub fn pthread_create(
+        thread: *mut crate::pthread_t,
+        attr: *const crate::pthread_attr_t,
+        start: extern "C" fn(*mut c_void) -> *mut c_void,
+        argument: *mut c_void,
+    ) -> c_int;
+    pub fn pthread_join(thread: crate::pthread_t, value: *mut *mut c_void) -> c_int;
+    pub fn pthread_detach(thread: crate::pthread_t) -> c_int;
+    pub fn pthread_self() -> crate::pthread_t;
+    pub fn pthread_attr_init(attr: *mut crate::pthread_attr_t) -> c_int;
+    pub fn pthread_attr_destroy(attr: *mut crate::pthread_attr_t) -> c_int;
+    pub fn pthread_attr_setstacksize(
+        attr: *mut crate::pthread_attr_t,
+        stack_size: size_t,
+    ) -> c_int;
+    pub fn pthread_key_create(
+        key: *mut crate::pthread_key_t,
+        destructor: Option<unsafe extern "C" fn(*mut c_void)>,
+    ) -> c_int;
+    pub fn pthread_key_delete(key: crate::pthread_key_t) -> c_int;
+    pub fn pthread_setspecific(key: crate::pthread_key_t, value: *const c_void) -> c_int;
+    pub fn pthread_getspecific(key: crate::pthread_key_t) -> *mut c_void;
+    pub fn sched_yield() -> c_int;
+    pub fn nanosleep(request: *const crate::timespec, remaining: *mut crate::timespec) -> c_int;
     pub fn futimens(fd: c_int, times: *const crate::timespec) -> c_int;
     pub fn utimensat(
         fd: c_int,

@@ -27,6 +27,21 @@ fn main() {
         panic!("staged upstream source has no generic module declaration");
     }
 
+    let pthread_type = "pub type pthread_t = c_ulong;";
+    if !source.contains(pthread_type) {
+        panic!("staged upstream source has no pthread_t declaration");
+    }
+    source = source.replacen(
+        pthread_type,
+        concat!(
+            "#[cfg(target_os = \"mochios\")]\n",
+            "pub type pthread_t = c_uint;\n",
+            "#[cfg(not(target_os = \"mochios\"))]\n",
+            "pub type pthread_t = c_ulong;"
+        ),
+        1,
+    );
+
     source = source.replacen(
         "mod generic;",
         &format!(
