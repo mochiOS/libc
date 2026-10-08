@@ -7,6 +7,7 @@ fn main() {
     println!("cargo:rerun-if-changed=newlib/mod.rs");
     println!("cargo:rerun-if-changed=newlib/generic.rs");
     println!("cargo:rerun-if-changed=newlib/mochios.rs");
+    println!("cargo:rerun-if-changed=.generated/upstream-newlib-mod.rs");
 
     let manifest_dir = PathBuf::from(
         env::var_os("CARGO_MANIFEST_DIR")
