@@ -308,6 +308,9 @@ extern "C" {
     pub fn setuid(uid: crate::uid_t) -> c_int;
     pub fn setpgid(pid: crate::pid_t, pgid: crate::pid_t) -> c_int;
     pub fn setsid() -> crate::pid_t;
+    pub fn tcgetpgrp(fd: c_int) -> crate::pid_t;
+    pub fn tcsetpgrp(fd: c_int, pgrp: crate::pid_t) -> c_int;
+    pub fn login_tty(fd: c_int) -> c_int;
     pub fn chroot(path: *const c_char) -> c_int;
     pub fn waitpid(pid: crate::pid_t, status: *mut c_int, options: c_int) -> crate::pid_t;
     pub fn posix_spawnattr_init(attr: *mut posix_spawnattr_t) -> c_int;
