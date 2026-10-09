@@ -53,7 +53,7 @@ pub const AT_REMOVEDIR: c_int = 8;
 
 pub const O_DIRECTORY: c_int = 0x200000;
 pub const O_NOFOLLOW: c_int = 0x100000;
-pub const O_CLOEXEC: c_int = 0x80000;
+pub const O_CLOEXEC: c_int = 0x40000;
 
 pub const _SC_OPEN_MAX: c_int = 4;
 pub const _SC_PAGESIZE: c_int = 8;
