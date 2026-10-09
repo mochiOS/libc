@@ -83,7 +83,8 @@ pub const MAP_HUGE_MASK: c_int = 0x3f << MAP_HUGE_SHIFT;
 pub const MAP_FAILED: *mut c_void = !0isize as *mut c_void;
 
 pub const MS_ASYNC: c_int = 0x1;
-pub const MS_SYNC: c_int = 0x2;
+pub const MS_INVALIDATE: c_int = 0x2;
+pub const MS_SYNC: c_int = 0x4;
 
 pub const MADV_NORMAL: c_int = 0;
 pub const MADV_RANDOM: c_int = 1;
