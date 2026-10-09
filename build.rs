@@ -43,6 +43,24 @@ fn main() {
         1,
     );
 
+    // A local upstream definition takes precedence over the mochiOS glob
+    // re-export. Select the newlib ABI here as well as in the platform module.
+    let cloexec_branch = concat!(
+        "if #[cfg(target_os = \"espidf\")] {\n",
+        "        pub const O_CLOEXEC: c_int = 0x40000;"
+    );
+    if !source.contains(cloexec_branch) {
+        panic!("staged upstream source has no expected O_CLOEXEC branch");
+    }
+    source = source.replacen(
+        cloexec_branch,
+        concat!(
+            "if #[cfg(any(target_os = \"espidf\", target_os = \"mochios\"))] {\n",
+            "        pub const O_CLOEXEC: c_int = 0x40000;"
+        ),
+        1,
+    );
+
     source = source.replacen(
         "mod generic;",
         &format!(
