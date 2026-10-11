@@ -1,6 +1,7 @@
 use crate::prelude::*;
 
 pub type clock_t = c_long;
+pub const TIMER_ABSTIME: c_int = 4;
 pub type wchar_t = u32;
 pub type posix_spawn_file_actions_t = *mut c_void;
 
@@ -249,6 +250,12 @@ safe_f! {
 }
 
 extern "C" {
+    pub fn clock_nanosleep(
+        clock_id: crate::clockid_t,
+        flags: c_int,
+        request: *const crate::timespec,
+        remaining: *mut crate::timespec,
+    ) -> c_int;
     pub fn pthread_create(
         thread: *mut crate::pthread_t,
         attr: *const crate::pthread_attr_t,
