@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-pub type clock_t = c_long;
+pub type clock_t = c_ulong;
 pub const TIMER_ABSTIME: c_int = 4;
 pub type wchar_t = u32;
 pub type posix_spawn_file_actions_t = *mut c_void;
