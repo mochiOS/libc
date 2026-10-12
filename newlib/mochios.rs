@@ -250,6 +250,17 @@ safe_f! {
 }
 
 extern "C" {
+    pub fn getdelim(
+        lineptr: *mut *mut c_char,
+        capacity: *mut size_t,
+        delimiter: c_int,
+        stream: *mut crate::FILE,
+    ) -> crate::ssize_t;
+    pub fn getline(
+        lineptr: *mut *mut c_char,
+        capacity: *mut size_t,
+        stream: *mut crate::FILE,
+    ) -> crate::ssize_t;
     pub fn clock_nanosleep(
         clock_id: crate::clockid_t,
         flags: c_int,
