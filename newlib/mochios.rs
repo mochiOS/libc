@@ -14,10 +14,30 @@ pub const PTHREAD_MUTEX_INITIALIZER: pthread_mutex_t = pthread_mutex_t {
 const _: [(); 32] = [(); core::mem::size_of::<pthread_mutex_t>()];
 const _: [(); 8] = [(); core::mem::align_of::<pthread_mutex_t>()];
 const _: [(); 12] = [(); core::mem::size_of::<pthread_mutexattr_t>()];
+const _: [(); crate::__SIZEOF_PTHREAD_MUTEXATTR_T] = [(); core::mem::size_of::<pthread_mutexattr_t>()];
+pub const PTHREAD_COND_INITIALIZER: pthread_cond_t = pthread_cond_t {
+    generation: 0, gate: 0, waiters: 0, initialized: 1, clock: 1,
+};
+const _: [(); 24] = [(); core::mem::size_of::<pthread_cond_t>()];
+const _: [(); 8] = [(); core::mem::align_of::<pthread_cond_t>()];
+const _: [(); crate::__SIZEOF_PTHREAD_COND_T] = [(); core::mem::size_of::<pthread_cond_t>()];
+const _: [(); crate::__SIZEOF_PTHREAD_CONDATTR_T] = [(); core::mem::size_of::<pthread_condattr_t>()];
 
 const _: [(); 4] = [(); core::mem::size_of::<crate::pthread_t>()];
 
 s! {
+    pub struct pthread_cond_t {
+        generation: u64,
+        gate: c_uint,
+        waiters: c_uint,
+        initialized: c_uint,
+        clock: c_int,
+    }
+    pub struct pthread_condattr_t {
+        initialized: c_int,
+        clock: c_int,
+        shared: c_int,
+    }
     pub struct pthread_mutex_t {
         state: c_uint,
         kind: c_int,
@@ -274,6 +294,19 @@ safe_f! {
 }
 
 extern "C" {
+    pub fn pthread_condattr_init(attr: *mut pthread_condattr_t) -> c_int;
+    pub fn pthread_condattr_destroy(attr: *mut pthread_condattr_t) -> c_int;
+    pub fn pthread_condattr_getclock(attr: *const pthread_condattr_t, clock: *mut crate::clockid_t) -> c_int;
+    pub fn pthread_condattr_setclock(attr: *mut pthread_condattr_t, clock: crate::clockid_t) -> c_int;
+    pub fn pthread_condattr_getpshared(attr: *const pthread_condattr_t, shared: *mut c_int) -> c_int;
+    pub fn pthread_condattr_setpshared(attr: *mut pthread_condattr_t, shared: c_int) -> c_int;
+    pub fn pthread_cond_init(cond: *mut pthread_cond_t, attr: *const pthread_condattr_t) -> c_int;
+    pub fn pthread_cond_destroy(cond: *mut pthread_cond_t) -> c_int;
+    pub fn pthread_cond_signal(cond: *mut pthread_cond_t) -> c_int;
+    pub fn pthread_cond_broadcast(cond: *mut pthread_cond_t) -> c_int;
+    pub fn pthread_cond_wait(cond: *mut pthread_cond_t, mutex: *mut pthread_mutex_t) -> c_int;
+    pub fn pthread_cond_timedwait(cond: *mut pthread_cond_t, mutex: *mut pthread_mutex_t, time: *const crate::timespec) -> c_int;
+    pub fn pthread_cond_clockwait(cond: *mut pthread_cond_t, mutex: *mut pthread_mutex_t, clock: crate::clockid_t, time: *const crate::timespec) -> c_int;
     pub fn pthread_mutex_init(mutex: *mut pthread_mutex_t, attr: *const pthread_mutexattr_t) -> c_int;
     pub fn pthread_mutex_destroy(mutex: *mut pthread_mutex_t) -> c_int;
     pub fn pthread_mutex_lock(mutex: *mut pthread_mutex_t) -> c_int;

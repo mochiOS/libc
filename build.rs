@@ -71,21 +71,28 @@ fn main() {
 
     // mochiOS stores mutex state inline; the generic newlib/Linux layouts
     // and byte-pattern initializer do not describe this target's C ABI.
-    for declaration in ["pub struct pthread_mutex_t {", "pub struct pthread_mutexattr_t {"] {
+    for declaration in ["pub struct pthread_mutex_t {", "pub struct pthread_mutexattr_t {",
+        "pub struct pthread_cond_t {", "pub struct pthread_condattr_t {"] {
         assert!(source.contains(declaration));
         source = source.replacen(declaration,
             &format!("#[cfg(not(target_os = \"mochios\"))]\n    {declaration}"), 1);
     }
     source = source.replacen("pub const PTHREAD_MUTEX_INITIALIZER: pthread_mutex_t =",
         "#[cfg(not(target_os = \"mochios\"))]\npub const PTHREAD_MUTEX_INITIALIZER: pthread_mutex_t =", 1);
+    source = source.replacen("pub const PTHREAD_COND_INITIALIZER: pthread_cond_t =",
+        "#[cfg(not(target_os = \"mochios\"))]\npub const PTHREAD_COND_INITIALIZER: pthread_cond_t =", 1);
     for (declaration, replacement) in [
         ("pub const __SIZEOF_PTHREAD_MUTEX_T: usize = 40;",
          "pub const __SIZEOF_PTHREAD_MUTEX_T: usize = if cfg!(target_os = \"mochios\") { 32 } else { 40 };"),
         ("pub const __SIZEOF_PTHREAD_MUTEXATTR_T: usize = 4;",
          "pub const __SIZEOF_PTHREAD_MUTEXATTR_T: usize = if cfg!(target_os = \"mochios\") { 12 } else { 4 };"),
+        ("pub const __SIZEOF_PTHREAD_COND_T: usize = 48;",
+         "pub const __SIZEOF_PTHREAD_COND_T: usize = if cfg!(target_os = \"mochios\") { 24 } else { 48 };"),
+        ("pub const __SIZEOF_PTHREAD_CONDATTR_T: usize = 4;",
+         "pub const __SIZEOF_PTHREAD_CONDATTR_T: usize = if cfg!(target_os = \"mochios\") { 12 } else { 4 };"),
     ] {
         assert!(source.contains(declaration));
-        source = source.replacen(declaration, replacement, 1);
+        source = source.replace(declaration, replacement);
     }
 
     let arch_branch =
