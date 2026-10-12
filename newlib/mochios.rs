@@ -5,9 +5,33 @@ pub const TIMER_ABSTIME: c_int = 4;
 pub type wchar_t = u32;
 pub type posix_spawn_file_actions_t = *mut c_void;
 
+pub const PTHREAD_MUTEX_DEFAULT: c_int = 3;
+pub const PTHREAD_PROCESS_PRIVATE: c_int = 0;
+pub const PTHREAD_PROCESS_SHARED: c_int = 1;
+pub const PTHREAD_MUTEX_INITIALIZER: pthread_mutex_t = pthread_mutex_t {
+    state: 0, kind: 0, owner: 0, depth: 0, initialized: 1, waiters: 0, reserved: 0,
+};
+const _: [(); 32] = [(); core::mem::size_of::<pthread_mutex_t>()];
+const _: [(); 8] = [(); core::mem::align_of::<pthread_mutex_t>()];
+const _: [(); 12] = [(); core::mem::size_of::<pthread_mutexattr_t>()];
+
 const _: [(); 4] = [(); core::mem::size_of::<crate::pthread_t>()];
 
 s! {
+    pub struct pthread_mutex_t {
+        state: c_uint,
+        kind: c_int,
+        owner: u64,
+        depth: c_uint,
+        initialized: c_uint,
+        waiters: c_uint,
+        reserved: c_uint,
+    }
+    pub struct pthread_mutexattr_t {
+        initialized: c_int,
+        kind: c_int,
+        shared: c_int,
+    }
     pub struct sockaddr {
         pub sa_family: super::sa_family_t,
         pub sa_data: [c_char; 14],
@@ -250,6 +274,17 @@ safe_f! {
 }
 
 extern "C" {
+    pub fn pthread_mutex_init(mutex: *mut pthread_mutex_t, attr: *const pthread_mutexattr_t) -> c_int;
+    pub fn pthread_mutex_destroy(mutex: *mut pthread_mutex_t) -> c_int;
+    pub fn pthread_mutex_lock(mutex: *mut pthread_mutex_t) -> c_int;
+    pub fn pthread_mutex_trylock(mutex: *mut pthread_mutex_t) -> c_int;
+    pub fn pthread_mutex_unlock(mutex: *mut pthread_mutex_t) -> c_int;
+    pub fn pthread_mutexattr_init(attr: *mut pthread_mutexattr_t) -> c_int;
+    pub fn pthread_mutexattr_destroy(attr: *mut pthread_mutexattr_t) -> c_int;
+    pub fn pthread_mutexattr_gettype(attr: *const pthread_mutexattr_t, kind: *mut c_int) -> c_int;
+    pub fn pthread_mutexattr_settype(attr: *mut pthread_mutexattr_t, kind: c_int) -> c_int;
+    pub fn pthread_mutexattr_getpshared(attr: *const pthread_mutexattr_t, shared: *mut c_int) -> c_int;
+    pub fn pthread_mutexattr_setpshared(attr: *mut pthread_mutexattr_t, shared: c_int) -> c_int;
     pub fn getdelim(
         lineptr: *mut *mut c_char,
         capacity: *mut size_t,

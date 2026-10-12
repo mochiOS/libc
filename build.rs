@@ -69,6 +69,25 @@ fn main() {
         1,
     );
 
+    // mochiOS stores mutex state inline; the generic newlib/Linux layouts
+    // and byte-pattern initializer do not describe this target's C ABI.
+    for declaration in ["pub struct pthread_mutex_t {", "pub struct pthread_mutexattr_t {"] {
+        assert!(source.contains(declaration));
+        source = source.replacen(declaration,
+            &format!("#[cfg(not(target_os = \"mochios\"))]\n    {declaration}"), 1);
+    }
+    source = source.replacen("pub const PTHREAD_MUTEX_INITIALIZER: pthread_mutex_t =",
+        "#[cfg(not(target_os = \"mochios\"))]\npub const PTHREAD_MUTEX_INITIALIZER: pthread_mutex_t =", 1);
+    for (declaration, replacement) in [
+        ("pub const __SIZEOF_PTHREAD_MUTEX_T: usize = 40;",
+         "pub const __SIZEOF_PTHREAD_MUTEX_T: usize = if cfg!(target_os = \"mochios\") { 32 } else { 40 };"),
+        ("pub const __SIZEOF_PTHREAD_MUTEXATTR_T: usize = 4;",
+         "pub const __SIZEOF_PTHREAD_MUTEXATTR_T: usize = if cfg!(target_os = \"mochios\") { 12 } else { 4 };"),
+    ] {
+        assert!(source.contains(declaration));
+        source = source.replacen(declaration, replacement, 1);
+    }
+
     let arch_branch =
         "    } else if #[cfg(target_arch = \"arm\")] {";
 
