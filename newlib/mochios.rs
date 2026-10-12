@@ -312,6 +312,8 @@ extern "C" {
     pub fn pthread_mutex_lock(mutex: *mut pthread_mutex_t) -> c_int;
     pub fn pthread_mutex_trylock(mutex: *mut pthread_mutex_t) -> c_int;
     pub fn pthread_mutex_unlock(mutex: *mut pthread_mutex_t) -> c_int;
+    pub fn pthread_mutex_timedlock(mutex: *mut pthread_mutex_t, time: *const crate::timespec) -> c_int;
+    pub fn pthread_mutex_clocklock(mutex: *mut pthread_mutex_t, clock: crate::clockid_t, time: *const crate::timespec) -> c_int;
     pub fn pthread_mutexattr_init(attr: *mut pthread_mutexattr_t) -> c_int;
     pub fn pthread_mutexattr_destroy(attr: *mut pthread_mutexattr_t) -> c_int;
     pub fn pthread_mutexattr_gettype(attr: *const pthread_mutexattr_t, kind: *mut c_int) -> c_int;
