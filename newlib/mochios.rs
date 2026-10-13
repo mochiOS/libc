@@ -6,6 +6,7 @@ pub type wchar_t = u32;
 pub type posix_spawn_file_actions_t = *mut c_void;
 
 pub type pthread_rwlock_t = c_uint;
+pub type pthread_spinlock_t = c_uint;
 pub const PTHREAD_RWLOCK_INITIALIZER: pthread_rwlock_t = c_uint::MAX;
 pub const PTHREAD_ONCE_INIT: pthread_once_t = pthread_once_t { initialized: 1, executed: 0 };
 pub const PTHREAD_BARRIER_SERIAL_THREAD: c_int = -1;
@@ -328,6 +329,11 @@ safe_f! {
 }
 
 extern "C" {
+    pub fn pthread_spin_init(lock: *mut pthread_spinlock_t, shared: c_int) -> c_int;
+    pub fn pthread_spin_destroy(lock: *mut pthread_spinlock_t) -> c_int;
+    pub fn pthread_spin_lock(lock: *mut pthread_spinlock_t) -> c_int;
+    pub fn pthread_spin_trylock(lock: *mut pthread_spinlock_t) -> c_int;
+    pub fn pthread_spin_unlock(lock: *mut pthread_spinlock_t) -> c_int;
     pub fn pthread_once(once: *mut pthread_once_t, initialize: Option<unsafe extern "C" fn()>) -> c_int;
     pub fn pthread_rwlockattr_getpshared(attr: *const pthread_rwlockattr_t, shared: *mut c_int) -> c_int;
     pub fn pthread_rwlockattr_setpshared(attr: *mut pthread_rwlockattr_t, shared: c_int) -> c_int;
