@@ -72,7 +72,9 @@ fn main() {
     // mochiOS stores mutex state inline; the generic newlib/Linux layouts
     // and byte-pattern initializer do not describe this target's C ABI.
     for declaration in ["pub struct pthread_mutex_t {", "pub struct pthread_mutexattr_t {",
-        "pub struct pthread_cond_t {", "pub struct pthread_condattr_t {"] {
+        "pub struct pthread_cond_t {", "pub struct pthread_condattr_t {",
+        "pub struct sem_t {", "pub struct pthread_rwlock_t {",
+        "pub struct pthread_rwlockattr_t {"] {
         assert!(source.contains(declaration));
         source = source.replacen(declaration,
             &format!("#[cfg(not(target_os = \"mochios\"))]\n    {declaration}"), 1);
@@ -81,6 +83,19 @@ fn main() {
         "#[cfg(not(target_os = \"mochios\"))]\npub const PTHREAD_MUTEX_INITIALIZER: pthread_mutex_t =", 1);
     source = source.replacen("pub const PTHREAD_COND_INITIALIZER: pthread_cond_t =",
         "#[cfg(not(target_os = \"mochios\"))]\npub const PTHREAD_COND_INITIALIZER: pthread_cond_t =", 1);
+    source = source.replacen("pub const PTHREAD_RWLOCK_INITIALIZER: pthread_rwlock_t =",
+        "#[cfg(not(target_os = \"mochios\"))]\npub const PTHREAD_RWLOCK_INITIALIZER: pthread_rwlock_t =", 1);
+    for (name, native, upstream_values) in [
+        ("__SIZEOF_PTHREAD_RWLOCK_T", 4, &[4, 32, 56][..]),
+        ("__SIZEOF_PTHREAD_RWLOCKATTR_T", 8, &[4, 8, 12][..]),
+        ("__SIZEOF_PTHREAD_BARRIER_T", 32, &[4, 32][..]),
+    ] {
+        for value in upstream_values {
+            let declaration = format!("pub const {name}: usize = {value};");
+            let replacement = format!("pub const {name}: usize = if cfg!(target_os = \"mochios\") {{ {native} }} else {{ {value} }};");
+            source = source.replace(&declaration, &replacement);
+        }
+    }
     for (declaration, replacement) in [
         ("pub const __SIZEOF_PTHREAD_MUTEX_T: usize = 40;",
          "pub const __SIZEOF_PTHREAD_MUTEX_T: usize = if cfg!(target_os = \"mochios\") { 32 } else { 40 };"),

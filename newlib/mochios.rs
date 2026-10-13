@@ -5,6 +5,26 @@ pub const TIMER_ABSTIME: c_int = 4;
 pub type wchar_t = u32;
 pub type posix_spawn_file_actions_t = *mut c_void;
 
+pub type pthread_rwlock_t = c_uint;
+pub const PTHREAD_RWLOCK_INITIALIZER: pthread_rwlock_t = c_uint::MAX;
+pub const PTHREAD_ONCE_INIT: pthread_once_t = pthread_once_t { initialized: 1, executed: 0 };
+pub const PTHREAD_BARRIER_SERIAL_THREAD: c_int = -1;
+pub const SEM_FAILED: *mut sem_t = core::ptr::null_mut();
+pub const SEM_VALUE_MAX: c_int = 2147483647;
+
+const _: [(); 4] = [(); core::mem::size_of::<pthread_rwlock_t>()];
+const _: [(); 4] = [(); core::mem::align_of::<pthread_rwlock_t>()];
+const _: [(); 8] = [(); core::mem::size_of::<pthread_rwlockattr_t>()];
+const _: [(); 4] = [(); core::mem::align_of::<pthread_rwlockattr_t>()];
+const _: [(); 8] = [(); core::mem::size_of::<pthread_once_t>()];
+const _: [(); 4] = [(); core::mem::align_of::<pthread_once_t>()];
+const _: [(); 16] = [(); core::mem::size_of::<sem_t>()];
+const _: [(); 8] = [(); core::mem::align_of::<sem_t>()];
+const _: [(); 32] = [(); core::mem::size_of::<pthread_barrier_t>()];
+const _: [(); 8] = [(); core::mem::align_of::<pthread_barrier_t>()];
+const _: [(); 8] = [(); core::mem::size_of::<pthread_barrierattr_t>()];
+const _: [(); 4] = [(); core::mem::align_of::<pthread_barrierattr_t>()];
+
 pub const PTHREAD_MUTEX_DEFAULT: c_int = 3;
 pub const PTHREAD_PROCESS_PRIVATE: c_int = 0;
 pub const PTHREAD_PROCESS_SHARED: c_int = 1;
@@ -26,6 +46,17 @@ const _: [(); crate::__SIZEOF_PTHREAD_CONDATTR_T] = [(); core::mem::size_of::<pt
 const _: [(); 4] = [(); core::mem::size_of::<crate::pthread_t>()];
 
 s! {
+    pub struct pthread_rwlockattr_t { initialized: c_int, shared: c_int }
+    pub struct pthread_once_t { initialized: c_int, executed: c_uint }
+    pub struct sem_t { count: u64, initialized: c_uint, reserved: c_uint }
+    pub struct pthread_barrier_t {
+        count: c_uint,
+        initialized: c_uint,
+        entered: u64,
+        completed: u64,
+        departed: u64,
+    }
+    pub struct pthread_barrierattr_t { initialized: c_int, shared: c_int }
     pub struct pthread_cond_t {
         generation: u64,
         gate: c_uint,
@@ -297,6 +328,23 @@ safe_f! {
 }
 
 extern "C" {
+    pub fn pthread_once(once: *mut pthread_once_t, initialize: Option<unsafe extern "C" fn()>) -> c_int;
+    pub fn pthread_rwlockattr_getpshared(attr: *const pthread_rwlockattr_t, shared: *mut c_int) -> c_int;
+    pub fn pthread_rwlockattr_setpshared(attr: *mut pthread_rwlockattr_t, shared: c_int) -> c_int;
+    pub fn pthread_rwlock_timedrdlock(lock: *mut pthread_rwlock_t, time: *const crate::timespec) -> c_int;
+    pub fn pthread_rwlock_timedwrlock(lock: *mut pthread_rwlock_t, time: *const crate::timespec) -> c_int;
+    pub fn pthread_rwlock_clockrdlock(lock: *mut pthread_rwlock_t, clock: crate::clockid_t, time: *const crate::timespec) -> c_int;
+    pub fn pthread_rwlock_clockwrlock(lock: *mut pthread_rwlock_t, clock: crate::clockid_t, time: *const crate::timespec) -> c_int;
+    pub fn sem_getvalue(semaphore: *mut sem_t, value: *mut c_int) -> c_int;
+    pub fn sem_timedwait(semaphore: *mut sem_t, time: *const crate::timespec) -> c_int;
+    pub fn sem_clockwait(semaphore: *mut sem_t, clock: crate::clockid_t, time: *const crate::timespec) -> c_int;
+    pub fn pthread_barrierattr_init(attr: *mut pthread_barrierattr_t) -> c_int;
+    pub fn pthread_barrierattr_destroy(attr: *mut pthread_barrierattr_t) -> c_int;
+    pub fn pthread_barrierattr_getpshared(attr: *const pthread_barrierattr_t, shared: *mut c_int) -> c_int;
+    pub fn pthread_barrierattr_setpshared(attr: *mut pthread_barrierattr_t, shared: c_int) -> c_int;
+    pub fn pthread_barrier_init(barrier: *mut pthread_barrier_t, attr: *const pthread_barrierattr_t, count: c_uint) -> c_int;
+    pub fn pthread_barrier_destroy(barrier: *mut pthread_barrier_t) -> c_int;
+    pub fn pthread_barrier_wait(barrier: *mut pthread_barrier_t) -> c_int;
     pub fn pthread_condattr_init(attr: *mut pthread_condattr_t) -> c_int;
     pub fn pthread_condattr_destroy(attr: *mut pthread_condattr_t) -> c_int;
     pub fn pthread_condattr_getclock(attr: *const pthread_condattr_t, clock: *mut crate::clockid_t) -> c_int;
