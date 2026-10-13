@@ -150,9 +150,12 @@ pub const F_SETFL: c_int = 4;
 pub const SIG_DFL: size_t = 0;
 pub const SIG_ERR: size_t = !0usize;
 
-pub const POSIX_SPAWN_SETPGROUP: c_int = 0x01;
-pub const POSIX_SPAWN_SETSIGDEF: c_int = 0x04;
-pub const POSIX_SPAWN_SETSIGMASK: c_int = 0x08;
+pub const POSIX_SPAWN_RESETIDS: c_int = 0x01;
+pub const POSIX_SPAWN_SETPGROUP: c_int = 0x02;
+pub const POSIX_SPAWN_SETSCHEDPARAM: c_int = 0x04;
+pub const POSIX_SPAWN_SETSCHEDULER: c_int = 0x08;
+pub const POSIX_SPAWN_SETSIGDEF: c_int = 0x10;
+pub const POSIX_SPAWN_SETSIGMASK: c_int = 0x20;
 pub const POSIX_SPAWN_SETSID: c_int = 0x80;
 
 pub const POLLIN: c_short = 0x1;
