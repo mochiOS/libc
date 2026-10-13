@@ -45,6 +45,28 @@ fn main() {
 
     // A local upstream definition takes precedence over the mochiOS glob
     // re-export. Select the newlib ABI here as well as in the platform module.
+    let time64_branch = "target_os = \"horizon\",";
+    if !source.contains(time64_branch) {
+        panic!("staged upstream source has no expected time_t selection branch");
+    }
+    source = source.replacen(
+        time64_branch,
+        "target_os = \"horizon\",\n        target_os = \"mochios\",",
+        1,
+    );
+    let microseconds_type = "pub type suseconds_t = i32;";
+    assert!(source.contains(microseconds_type));
+    source = source.replacen(
+        microseconds_type,
+        concat!(
+            "#[cfg(target_os = \"mochios\")]\n",
+            "pub type suseconds_t = c_long;\n",
+            "#[cfg(not(target_os = \"mochios\"))]\n",
+            "pub type suseconds_t = i32;"
+        ),
+        1,
+    );
+
     let cloexec_branch = concat!(
         "if #[cfg(target_os = \"espidf\")] {\n",
         "        pub const O_CLOEXEC: c_int = 0x40000;"
