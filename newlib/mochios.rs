@@ -56,6 +56,10 @@ const _: [(); crate::__SIZEOF_PTHREAD_CONDATTR_T] = [(); core::mem::size_of::<pt
 const _: [(); 4] = [(); core::mem::size_of::<crate::pthread_t>()];
 
 s! {
+    pub struct rusage {
+        pub ru_utime: crate::timeval,
+        pub ru_stime: crate::timeval,
+    }
     pub struct pthread_rwlockattr_t { initialized: c_int, shared: c_int }
     pub struct pthread_once_t { initialized: c_int, executed: c_uint }
     pub struct sem_t { count: u64, initialized: c_uint, reserved: c_uint }
@@ -125,6 +129,12 @@ s! {
 }
 
 pub const AF_UNIX: c_int = 1;
+pub const RUSAGE_SELF: c_int = 0;
+pub const RUSAGE_CHILDREN: c_int = -1;
+const _: [(); 32] = [(); core::mem::size_of::<rusage>()];
+const _: [(); 8] = [(); core::mem::align_of::<rusage>()];
+const _: [(); 16] = [(); core::mem::offset_of!(rusage, ru_stime)];
+const _: unsafe extern "C" fn(c_int, *mut rusage) -> c_int = crate::getrusage;
 pub const AF_INET6: c_int = 23;
 pub const FIONBIO: c_ulong = 1;
 pub const SOMAXCONN: c_int = 128;

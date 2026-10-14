@@ -89,6 +89,7 @@ s! {
         pub rlim_max: rlim_t,
     }
 
+    #[cfg(not(target_os = "mochios"))]
     pub struct rusage {
         pub ru_utime: timeval,
         pub ru_stime: timeval,
