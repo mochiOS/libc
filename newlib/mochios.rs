@@ -102,6 +102,22 @@ s! {
         pub sa_data: [c_char; 14],
     }
 
+    pub struct msghdr {
+        pub msg_name: *mut c_void,
+        pub msg_namelen: crate::socklen_t,
+        pub msg_iov: *mut crate::iovec,
+        pub msg_iovlen: size_t,
+        pub msg_control: *mut c_void,
+        pub msg_controllen: size_t,
+        pub msg_flags: c_int,
+    }
+
+    pub struct cmsghdr {
+        pub cmsg_len: size_t,
+        pub cmsg_level: c_int,
+        pub cmsg_type: c_int,
+    }
+
     pub struct sockaddr_in6 {
         pub sin6_family: super::sa_family_t,
         pub sin6_port: crate::in_port_t,
@@ -122,6 +138,7 @@ s! {
         pub sun_path: [c_char; 108],
     }
 
+    #[repr(align(8))]
     pub struct sockaddr_storage {
         pub ss_family: super::sa_family_t,
         __ss_padding: Padding<[u8; 126]>,
@@ -129,13 +146,17 @@ s! {
 }
 
 pub const AF_UNIX: c_int = 1;
+pub const AF_LOCAL: c_int = AF_UNIX;
+pub const PF_UNIX: c_int = AF_UNIX;
+pub const PF_LOCAL: c_int = AF_LOCAL;
+pub const PF_INET6: c_int = AF_INET6;
 pub const RUSAGE_SELF: c_int = 0;
 pub const RUSAGE_CHILDREN: c_int = -1;
 const _: [(); 32] = [(); core::mem::size_of::<rusage>()];
 const _: [(); 8] = [(); core::mem::align_of::<rusage>()];
 const _: [(); 16] = [(); core::mem::offset_of!(rusage, ru_stime)];
 const _: unsafe extern "C" fn(c_int, *mut rusage) -> c_int = crate::getrusage;
-pub const AF_INET6: c_int = 23;
+pub const AF_INET6: c_int = 10;
 pub const FIONBIO: c_ulong = 1;
 pub const SOMAXCONN: c_int = 128;
 pub const RTLD_DEFAULT: *mut c_void = -2isize as *mut c_void;
@@ -216,15 +237,106 @@ pub const POLLERR: c_short = 0x8;
 pub const POLLHUP: c_short = 0x10;
 pub const POLLNVAL: c_short = 0x20;
 
-pub const SOL_SOCKET: c_int = 0xffff;
+pub const SOL_SOCKET: c_int = 1;
+pub const SOCK_SEQPACKET: c_int = 5;
+pub const SOCK_NONBLOCK: c_int = 0x800;
+pub const SOCK_CLOEXEC: c_int = 0x80000;
+pub const SO_DEBUG: c_int = 1;
+pub const SO_REUSEADDR: c_int = 2;
+pub const SO_TYPE: c_int = 3;
+pub const SO_ERROR: c_int = 4;
+pub const SO_DONTROUTE: c_int = 5;
+pub const SO_BROADCAST: c_int = 6;
+pub const SO_SNDBUF: c_int = 7;
+pub const SO_RCVBUF: c_int = 8;
+pub const SO_KEEPALIVE: c_int = 9;
+pub const SO_OOBINLINE: c_int = 10;
+pub const SO_LINGER: c_int = 13;
+pub const SO_REUSEPORT: c_int = 15;
+pub const SO_RCVLOWAT: c_int = 18;
+pub const SO_SNDLOWAT: c_int = 19;
+pub const SO_RCVTIMEO: c_int = 20;
+pub const SO_SNDTIMEO: c_int = 21;
+pub const SO_TIMESTAMP: c_int = 29;
+pub const SO_ACCEPTCONN: c_int = 30;
+pub const SCM_RIGHTS: c_int = 1;
 
 pub const MSG_OOB: c_int = 1;
 pub const MSG_PEEK: c_int = 2;
-pub const MSG_DONTWAIT: c_int = 4;
-pub const MSG_DONTROUTE: c_int = 0;
-pub const MSG_WAITALL: c_int = 0;
-pub const MSG_MORE: c_int = 0;
-pub const MSG_NOSIGNAL: c_int = 0;
+pub const MSG_DONTWAIT: c_int = 0x40;
+pub const MSG_DONTROUTE: c_int = 0x4;
+pub const MSG_WAITALL: c_int = 0x100;
+pub const MSG_MORE: c_int = 0x8000;
+pub const MSG_NOSIGNAL: c_int = 0x4000;
+pub const MSG_CTRUNC: c_int = 0x8;
+pub const MSG_TRUNC: c_int = 0x20;
+pub const MSG_CMSG_CLOEXEC: c_int = 0x40000000;
+
+const _: [(); 2] = [(); core::mem::size_of::<crate::sa_family_t>()];
+const _: [(); 16] = [(); core::mem::size_of::<sockaddr>()];
+const _: [(); 110] = [(); core::mem::size_of::<sockaddr_un>()];
+const _: [(); 128] = [(); core::mem::size_of::<sockaddr_storage>()];
+const _: [(); 8] = [(); core::mem::align_of::<sockaddr_storage>()];
+const _: [(); 56] = [(); core::mem::size_of::<msghdr>()];
+const _: [(); 8] = [(); core::mem::align_of::<msghdr>()];
+const _: [(); 16] = [(); core::mem::size_of::<cmsghdr>()];
+const _: [(); 8] = [(); core::mem::align_of::<cmsghdr>()];
+
+const fn cmsg_align(length: size_t) -> size_t {
+    length.wrapping_add(core::mem::size_of::<size_t>() - 1)
+        & !(core::mem::size_of::<size_t>() - 1)
+}
+
+f! {
+    pub fn CMSG_FIRSTHDR(message: *const msghdr) -> *mut cmsghdr {
+        if !(*message).msg_control.is_null()
+            && (*message).msg_controllen >= core::mem::size_of::<cmsghdr>()
+        {
+            (*message).msg_control.cast()
+        } else {
+            core::ptr::null_mut()
+        }
+    }
+
+    pub fn CMSG_DATA(header: *const cmsghdr) -> *mut c_uchar {
+        header.cast::<c_uchar>()
+            .add(cmsg_align(core::mem::size_of::<cmsghdr>())) as *mut c_uchar
+    }
+
+    pub const fn CMSG_SPACE(length: c_uint) -> c_uint {
+        cmsg_align(core::mem::size_of::<cmsghdr>())
+            .wrapping_add(cmsg_align(length as size_t)) as c_uint
+    }
+
+    pub const fn CMSG_LEN(length: c_uint) -> c_uint {
+        cmsg_align(core::mem::size_of::<cmsghdr>()).wrapping_add(length as size_t) as c_uint
+    }
+
+    pub fn CMSG_NXTHDR(message: *const msghdr, header: *const cmsghdr) -> *mut cmsghdr {
+        let base = (*message).msg_control as usize;
+        let current = header as usize;
+        let length = (*message).msg_controllen;
+        if base == 0 || current == 0 || current < base || current - base > length {
+            return core::ptr::null_mut();
+        }
+        let remaining = length - (current - base);
+        if remaining < core::mem::size_of::<cmsghdr>() {
+            return core::ptr::null_mut();
+        }
+        let size = (*header).cmsg_len;
+        if size < core::mem::size_of::<cmsghdr>() || size > remaining {
+            return core::ptr::null_mut();
+        }
+        let step = cmsg_align(size);
+        if step < size || step > remaining
+            || remaining - step < core::mem::size_of::<cmsghdr>()
+            || current.checked_add(step).is_none()
+        {
+            return core::ptr::null_mut();
+        }
+        current.wrapping_add(step) as *mut cmsghdr
+    }
+}
 
 pub const EAI_AGAIN: c_int = 2;
 pub const EAI_BADFLAGS: c_int = 3;
@@ -348,6 +460,14 @@ safe_f! {
 }
 
 extern "C" {
+    pub fn sendmsg(socket: c_int, message: *const msghdr, flags: c_int) -> ssize_t;
+    pub fn recvmsg(socket: c_int, message: *mut msghdr, flags: c_int) -> ssize_t;
+    pub fn accept4(
+        socket: c_int,
+        address: *mut sockaddr,
+        length: *mut crate::socklen_t,
+        flags: c_int,
+    ) -> c_int;
     pub fn pthread_spin_init(lock: *mut pthread_spinlock_t, shared: c_int) -> c_int;
     pub fn pthread_spin_destroy(lock: *mut pthread_spinlock_t) -> c_int;
     pub fn pthread_spin_lock(lock: *mut pthread_spinlock_t) -> c_int;

@@ -67,6 +67,30 @@ fn main() {
         1,
     );
 
+    let family_branch = "if #[cfg(target_os = \"horizon\")] {\n        pub type sa_family_t = u16;";
+    assert!(source.contains(family_branch));
+    source = source.replacen(
+        family_branch,
+        "if #[cfg(any(target_os = \"horizon\", target_os = \"mochios\"))] {\n        pub type sa_family_t = u16;",
+        1,
+    );
+
+    // Upstream newlib's BSD socket option numbers otherwise shadow the target
+    // glob re-export. Socket flags are not file open flags (notably CLOEXEC).
+    for name in [
+        "PF_INET6", "SOCK_CLOEXEC", "SO_DEBUG", "SO_REUSEADDR", "SO_TYPE",
+        "SO_ERROR", "SO_DONTROUTE", "SO_BROADCAST", "SO_SNDBUF", "SO_RCVBUF",
+        "SO_KEEPALIVE", "SO_OOBINLINE", "SO_LINGER", "SO_REUSEPORT", "SO_RCVLOWAT",
+        "SO_SNDLOWAT", "SO_RCVTIMEO", "SO_SNDTIMEO", "SO_TIMESTAMP", "SO_ACCEPTCONN",
+    ] {
+        let declaration = format!("pub const {name}: c_int = ");
+        assert!(source.contains(&declaration), "missing upstream socket definition: {}", name);
+        source = source.replace(
+            &declaration,
+            &format!("#[cfg(not(target_os = \"mochios\"))]\n{declaration}"),
+        );
+    }
+
     let cloexec_branch = concat!(
         "if #[cfg(target_os = \"espidf\")] {\n",
         "        pub const O_CLOEXEC: c_int = 0x40000;"
