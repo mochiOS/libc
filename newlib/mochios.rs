@@ -157,7 +157,7 @@ const _: [(); 8] = [(); core::mem::align_of::<rusage>()];
 const _: [(); 16] = [(); core::mem::offset_of!(rusage, ru_stime)];
 const _: unsafe extern "C" fn(c_int, *mut rusage) -> c_int = crate::getrusage;
 pub const AF_INET6: c_int = 10;
-pub const FIONBIO: c_ulong = 1;
+pub const FIONBIO: c_ulong = 0x5421;
 pub const SOMAXCONN: c_int = 128;
 pub const RTLD_DEFAULT: *mut c_void = -2isize as *mut c_void;
 
