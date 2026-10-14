@@ -582,6 +582,11 @@ extern "C" {
     pub fn pipe(fds: *mut c_int) -> c_int;
     pub fn pipe2(fds: *mut c_int, flags: c_int) -> c_int;
     pub fn fork() -> crate::pid_t;
+    pub fn pthread_atfork(
+        prepare: Option<unsafe extern "C" fn()>,
+        parent: Option<unsafe extern "C" fn()>,
+        child: Option<unsafe extern "C" fn()>,
+    ) -> c_int;
     pub fn execvp(file: *const c_char, argv: *const *const c_char) -> c_int;
     pub fn dup2(oldfd: c_int, newfd: c_int) -> c_int;
     pub fn fcntl(fd: c_int, cmd: c_int, ...) -> c_int;
