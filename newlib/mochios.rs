@@ -6,6 +6,7 @@ pub type clock_t = c_ulong;
 const _: [(); 8] = [(); core::mem::size_of::<crate::time_t>()];
 const _: [(); 8] = [(); core::mem::align_of::<crate::time_t>()];
 const _: [(); 8] = [(); core::mem::size_of::<crate::suseconds_t>()];
+const _: [(); 8] = [(); core::mem::size_of::<crate::useconds_t>()];
 const _: [(); 16] = [(); core::mem::size_of::<crate::timespec>()];
 const _: [(); 8] = [(); core::mem::offset_of!(crate::timespec, tv_nsec)];
 const _: [(); 16] = [(); core::mem::size_of::<crate::timeval>()];

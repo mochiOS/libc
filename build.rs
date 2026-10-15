@@ -66,6 +66,18 @@ fn main() {
         ),
         1,
     );
+    let unsigned_microseconds_type = "pub type useconds_t = u32;";
+    assert!(source.contains(unsigned_microseconds_type));
+    source = source.replacen(
+        unsigned_microseconds_type,
+        concat!(
+            "#[cfg(target_os = \"mochios\")]\n",
+            "pub type useconds_t = c_ulong;\n",
+            "#[cfg(not(target_os = \"mochios\"))]\n",
+            "pub type useconds_t = u32;"
+        ),
+        1,
+    );
 
     let family_branch = "if #[cfg(target_os = \"horizon\")] {\n        pub type sa_family_t = u16;";
     assert!(source.contains(family_branch));
