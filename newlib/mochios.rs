@@ -14,6 +14,22 @@ const _: [(); 8] = [(); core::mem::offset_of!(crate::timeval, tv_usec)];
 pub const TIMER_ABSTIME: c_int = 4;
 pub type wchar_t = u32;
 pub type posix_spawn_file_actions_t = *mut c_void;
+pub type idtype_t = c_int;
+pub const P_ALL: idtype_t = 0;
+pub const P_PID: idtype_t = 1;
+pub const P_PGID: idtype_t = 2;
+pub const WEXITED: c_int = 4;
+pub const WSTOPPED: c_int = 2;
+pub const WNOWAIT: c_int = 16;
+pub const CLD_EXITED: c_int = 0x100;
+pub const CLD_KILLED: c_int = 0x101;
+pub const CLD_DUMPED: c_int = 0x102;
+pub const CLD_TRAPPED: c_int = 0x103;
+pub const CLD_STOPPED: c_int = 0x104;
+pub const CLD_CONTINUED: c_int = 0x105;
+const _: [(); 40] = [(); core::mem::size_of::<siginfo_t>()];
+const _: [(); 8] = [(); core::mem::align_of::<siginfo_t>()];
+const _: [(); 32] = [(); core::mem::offset_of!(siginfo_t, si_addr)];
 
 pub type pthread_rwlock_t = c_uint;
 pub type pthread_spinlock_t = c_uint;
@@ -64,6 +80,17 @@ s! {
     // Opaque C storage. Never interpret the runtime's private attributes here.
     pub struct pthread_attr_t { storage: [u64; 5] }
     pub struct sched_param { pub sched_priority: c_int }
+    pub struct siginfo_t {
+        pub si_signo: c_int,
+        pub si_code: c_int,
+        pub si_value: crate::sigval,
+        pub si_errno: c_int,
+        pub si_pid: crate::pid_t,
+        pub si_uid: c_ushort,
+        reserved_uid: c_ushort,
+        pub si_status: c_int,
+        pub si_addr: *mut c_void,
+    }
     pub struct rusage {
         pub ru_utime: crate::timeval,
         pub ru_stime: crate::timeval,
@@ -548,6 +575,7 @@ extern "C" {
         argument: *mut c_void,
     ) -> c_int;
     pub fn pthread_join(thread: crate::pthread_t, value: *mut *mut c_void) -> c_int;
+    pub fn waitid(id_type: idtype_t, id: crate::id_t, info: *mut siginfo_t, options: c_int) -> c_int;
     pub fn pthread_detach(thread: crate::pthread_t) -> c_int;
     pub fn pthread_self() -> crate::pthread_t;
     pub fn pthread_attr_init(attr: *mut crate::pthread_attr_t) -> c_int;
