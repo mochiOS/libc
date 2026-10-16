@@ -129,7 +129,7 @@ fn main() {
 
     // mochiOS stores mutex state inline; the generic newlib/Linux layouts
     // and byte-pattern initializer do not describe this target's C ABI.
-    for declaration in ["pub struct pthread_mutex_t {", "pub struct pthread_mutexattr_t {",
+    for declaration in ["pub struct pthread_attr_t {", "pub struct pthread_mutex_t {", "pub struct pthread_mutexattr_t {",
         "pub struct pthread_cond_t {", "pub struct pthread_condattr_t {",
         "pub struct sem_t {", "pub struct pthread_rwlock_t {",
         "pub struct pthread_rwlockattr_t {"] {
@@ -144,6 +144,7 @@ fn main() {
     source = source.replacen("pub const PTHREAD_RWLOCK_INITIALIZER: pthread_rwlock_t =",
         "#[cfg(not(target_os = \"mochios\"))]\npub const PTHREAD_RWLOCK_INITIALIZER: pthread_rwlock_t =", 1);
     for (name, native, upstream_values) in [
+        ("__SIZEOF_PTHREAD_ATTR_T", 40, &[4, 32, 56, 96][..]),
         ("__SIZEOF_PTHREAD_RWLOCK_T", 4, &[4, 32, 56][..]),
         ("__SIZEOF_PTHREAD_RWLOCKATTR_T", 8, &[4, 8, 12][..]),
         ("__SIZEOF_PTHREAD_BARRIER_T", 32, &[4, 32][..]),

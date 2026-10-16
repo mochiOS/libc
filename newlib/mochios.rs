@@ -55,8 +55,12 @@ const _: [(); crate::__SIZEOF_PTHREAD_COND_T] = [(); core::mem::size_of::<pthrea
 const _: [(); crate::__SIZEOF_PTHREAD_CONDATTR_T] = [(); core::mem::size_of::<pthread_condattr_t>()];
 
 const _: [(); 4] = [(); core::mem::size_of::<crate::pthread_t>()];
+const _: [(); 40] = [(); core::mem::size_of::<pthread_attr_t>()];
+const _: [(); 8] = [(); core::mem::align_of::<pthread_attr_t>()];
 
 s! {
+    // Opaque C storage. Never interpret the runtime's private attributes here.
+    pub struct pthread_attr_t { storage: [u64; 5] }
     pub struct rusage {
         pub ru_utime: crate::timeval,
         pub ru_stime: crate::timeval,
@@ -545,6 +549,8 @@ extern "C" {
     pub fn pthread_self() -> crate::pthread_t;
     pub fn pthread_attr_init(attr: *mut crate::pthread_attr_t) -> c_int;
     pub fn pthread_attr_destroy(attr: *mut crate::pthread_attr_t) -> c_int;
+    pub fn pthread_attr_setguardsize(attr: *mut crate::pthread_attr_t, size: size_t) -> c_int;
+    pub fn pthread_attr_getguardsize(attr: *const crate::pthread_attr_t, size: *mut size_t) -> c_int;
     pub fn pthread_attr_setstacksize(
         attr: *mut crate::pthread_attr_t,
         stack_size: size_t,
