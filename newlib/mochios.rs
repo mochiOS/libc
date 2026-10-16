@@ -57,10 +57,13 @@ const _: [(); crate::__SIZEOF_PTHREAD_CONDATTR_T] = [(); core::mem::size_of::<pt
 const _: [(); 4] = [(); core::mem::size_of::<crate::pthread_t>()];
 const _: [(); 40] = [(); core::mem::size_of::<pthread_attr_t>()];
 const _: [(); 8] = [(); core::mem::align_of::<pthread_attr_t>()];
+const _: [(); 4] = [(); core::mem::size_of::<sched_param>()];
+const _: [(); 4] = [(); core::mem::align_of::<sched_param>()];
 
 s! {
     // Opaque C storage. Never interpret the runtime's private attributes here.
     pub struct pthread_attr_t { storage: [u64; 5] }
+    pub struct sched_param { pub sched_priority: c_int }
     pub struct rusage {
         pub ru_utime: crate::timeval,
         pub ru_stime: crate::timeval,
@@ -551,6 +554,16 @@ extern "C" {
     pub fn pthread_attr_destroy(attr: *mut crate::pthread_attr_t) -> c_int;
     pub fn pthread_attr_setguardsize(attr: *mut crate::pthread_attr_t, size: size_t) -> c_int;
     pub fn pthread_attr_getguardsize(attr: *const crate::pthread_attr_t, size: *mut size_t) -> c_int;
+    pub fn pthread_attr_getstackaddr(attr: *const crate::pthread_attr_t, address: *mut *mut c_void) -> c_int;
+    pub fn pthread_attr_setstackaddr(attr: *mut crate::pthread_attr_t, address: *mut c_void) -> c_int;
+    pub fn pthread_attr_getscope(attr: *const crate::pthread_attr_t, scope: *mut c_int) -> c_int;
+    pub fn pthread_attr_setscope(attr: *mut crate::pthread_attr_t, scope: c_int) -> c_int;
+    pub fn pthread_attr_getinheritsched(attr: *const crate::pthread_attr_t, inherit: *mut c_int) -> c_int;
+    pub fn pthread_attr_setinheritsched(attr: *mut crate::pthread_attr_t, inherit: c_int) -> c_int;
+    pub fn pthread_attr_getschedpolicy(attr: *const crate::pthread_attr_t, policy: *mut c_int) -> c_int;
+    pub fn pthread_attr_setschedpolicy(attr: *mut crate::pthread_attr_t, policy: c_int) -> c_int;
+    pub fn pthread_attr_getschedparam(attr: *const crate::pthread_attr_t, parameter: *mut crate::sched_param) -> c_int;
+    pub fn pthread_attr_setschedparam(attr: *mut crate::pthread_attr_t, parameter: *const crate::sched_param) -> c_int;
     pub fn pthread_attr_setstacksize(
         attr: *mut crate::pthread_attr_t,
         stack_size: size_t,
