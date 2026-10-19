@@ -196,6 +196,7 @@ pub const FIONBIO: c_ulong = 0x5421;
 pub const SOMAXCONN: c_int = 128;
 pub const RTLD_DEFAULT: *mut c_void = -2isize as *mut c_void;
 
+pub const UTIME_NOW: c_long = -2;
 pub const UTIME_OMIT: c_long = -1;
 pub const AT_FDCWD: c_int = -2;
 pub const AT_EACCESS: c_int = 1;
