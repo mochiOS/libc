@@ -13,6 +13,7 @@ const _: [(); 16] = [(); core::mem::size_of::<crate::timeval>()];
 const _: [(); 8] = [(); core::mem::offset_of!(crate::timeval, tv_usec)];
 pub const TIMER_ABSTIME: c_int = 4;
 pub const SA_NODEFER: c_int = 0x4000_0000;
+pub const SA_RESETHAND: c_int = c_int::MIN;
 pub type wchar_t = u32;
 pub type posix_spawn_file_actions_t = *mut c_void;
 pub type idtype_t = c_int;
