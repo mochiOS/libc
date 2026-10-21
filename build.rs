@@ -3,6 +3,31 @@ use std::fs;
 use std::path::PathBuf;
 
 fn main() {
+    // These selectors already occur in the upstream bindings. Declaring them
+    // for check-cfg does not enable them or change the selected platform ABI.
+    for name in [
+        "emscripten_old_stat_abi",
+        "espidf_picolibc",
+        "espidf_time32",
+        "freebsd10",
+        "freebsd11",
+        "freebsd12",
+        "freebsd13",
+        "freebsd14",
+        "freebsd15",
+        "gnu_file_offset_bits64",
+        "gnu_time_bits64",
+        "libc_deny_warnings",
+        "linux_time_bits64",
+        "musl_v1_2_3",
+        "musl32_time64",
+        "musl_redir_time64",
+        "vxworks_lt_25_09",
+    ] {
+        println!("cargo:rustc-check-cfg=cfg({name})");
+    }
+    println!("cargo:rustc-check-cfg=cfg(target_os, values(\"mochios\", \"switch\"))");
+    println!("cargo:rustc-check-cfg=cfg(target_env, values(\"wasi\", \"illumos\", \"nto80\"))");
     println!("cargo:rerun-if-changed=build.rs");
     println!("cargo:rerun-if-changed=newlib/mod.rs");
     println!("cargo:rerun-if-changed=newlib/generic.rs");
