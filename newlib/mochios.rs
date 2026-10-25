@@ -1,6 +1,16 @@
 use crate::prelude::*;
 
 pub type clock_t = c_ulong;
+s! {
+    pub struct utsname {
+        pub sysname: [c_char; 256],
+        pub nodename: [c_char; 256],
+        pub release: [c_char; 256],
+        pub version: [c_char; 256],
+        pub machine: [c_char; 256],
+    }
+}
+const _: [(); 1280] = [(); core::mem::size_of::<utsname>()];
 // The x86_64 SDK/newlib runtime uses signed 64-bit seconds, not newlib's
 // generic 32-bit time_t. Size alone cannot detect timespec's padding mismatch.
 const _: [(); 8] = [(); core::mem::size_of::<crate::time_t>()];
@@ -500,6 +510,8 @@ safe_f! {
 }
 
 extern "C" {
+    pub fn uname(output: *mut utsname) -> c_int;
+    pub fn sethostname(name: *const c_char, length: size_t) -> c_int;
     pub fn sendmsg(socket: c_int, message: *const msghdr, flags: c_int) -> ssize_t;
     pub fn recvmsg(socket: c_int, message: *mut msghdr, flags: c_int) -> ssize_t;
     pub fn accept4(
