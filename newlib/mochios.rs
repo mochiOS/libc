@@ -96,6 +96,7 @@ s! {
     pub struct rusage {
         pub ru_utime: crate::timeval,
         pub ru_stime: crate::timeval,
+        pub ru_maxrss: c_long,
     }
     pub struct pthread_rwlockattr_t { initialized: c_int, shared: c_int }
     pub struct pthread_once_t { initialized: c_int, executed: c_uint }
@@ -189,7 +190,8 @@ pub const PF_LOCAL: c_int = AF_LOCAL;
 pub const PF_INET6: c_int = AF_INET6;
 pub const RUSAGE_SELF: c_int = 0;
 pub const RUSAGE_CHILDREN: c_int = -1;
-const _: [(); 32] = [(); core::mem::size_of::<rusage>()];
+const _: [(); 40] = [(); core::mem::size_of::<rusage>()];
+const _: [(); 32] = [(); core::mem::offset_of!(rusage, ru_maxrss)];
 const _: [(); 8] = [(); core::mem::align_of::<rusage>()];
 const _: [(); 16] = [(); core::mem::offset_of!(rusage, ru_stime)];
 const _: unsafe extern "C" fn(c_int, *mut rusage) -> c_int = crate::getrusage;
