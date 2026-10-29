@@ -152,6 +152,45 @@ fn main() {
         1,
     );
 
+    // The mochiOS application resolver ABI uses Linux flag/error values and
+    // pointer order. Generic newlib declarations would shadow the re-export.
+    let addrinfo = "pub struct addrinfo {";
+    assert!(source.contains(addrinfo));
+    source = source.replacen(
+        addrinfo,
+        &format!("#[cfg(not(target_os = \"mochios\"))]\n    {addrinfo}"),
+        1,
+    );
+    for name in [
+        "AI_PASSIVE",
+        "AI_CANONNAME",
+        "AI_NUMERICHOST",
+        "AI_NUMERICSERV",
+        "AI_ADDRCONFIG",
+        "NI_MAXHOST",
+        "NI_MAXSERV",
+        "NI_NOFQDN",
+        "NI_NUMERICHOST",
+        "NI_NAMEREQD",
+        "NI_NUMERICSERV",
+        "NI_DGRAM",
+        "EAI_FAMILY",
+        "EAI_MEMORY",
+        "EAI_NONAME",
+        "EAI_SOCKTYPE",
+    ] {
+        let declaration = format!("pub const {name}: c_int = ");
+        assert!(
+            source.contains(&declaration),
+            "missing upstream resolver definition: {}",
+            name
+        );
+        source = source.replace(
+            &declaration,
+            &format!("#[cfg(not(target_os = \"mochios\"))]\n{declaration}"),
+        );
+    }
+
     // mochiOS stores mutex state inline; the generic newlib/Linux layouts
     // and byte-pattern initializer do not describe this target's C ABI.
     for declaration in ["pub struct pthread_attr_t {", "pub struct pthread_mutex_t {", "pub struct pthread_mutexattr_t {",

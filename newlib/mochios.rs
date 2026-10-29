@@ -388,12 +388,45 @@ f! {
     }
 }
 
-pub const EAI_AGAIN: c_int = 2;
-pub const EAI_BADFLAGS: c_int = 3;
-pub const EAI_FAIL: c_int = 4;
-pub const EAI_SERVICE: c_int = 9;
-pub const EAI_SYSTEM: c_int = 11;
-pub const EAI_OVERFLOW: c_int = 14;
+s! {
+    pub struct addrinfo {
+        pub ai_flags: c_int,
+        pub ai_family: c_int,
+        pub ai_socktype: c_int,
+        pub ai_protocol: c_int,
+        pub ai_addrlen: crate::socklen_t,
+        pub ai_addr: *mut sockaddr,
+        pub ai_canonname: *mut c_char,
+        pub ai_next: *mut addrinfo,
+    }
+}
+const _: [(); 48] = [(); core::mem::size_of::<addrinfo>()];
+const _: [(); 24] = [(); core::mem::offset_of!(addrinfo, ai_addr)];
+const _: [(); 32] = [(); core::mem::offset_of!(addrinfo, ai_canonname)];
+pub const AI_PASSIVE: c_int = 1;
+pub const AI_CANONNAME: c_int = 2;
+pub const AI_NUMERICHOST: c_int = 4;
+pub const AI_V4MAPPED: c_int = 8;
+pub const AI_ALL: c_int = 16;
+pub const AI_ADDRCONFIG: c_int = 32;
+pub const AI_NUMERICSERV: c_int = 1024;
+pub const NI_NUMERICHOST: c_int = 1;
+pub const NI_NUMERICSERV: c_int = 2;
+pub const NI_NOFQDN: c_int = 4;
+pub const NI_NAMEREQD: c_int = 8;
+pub const NI_DGRAM: c_int = 16;
+pub const NI_MAXHOST: c_int = 1025;
+pub const NI_MAXSERV: c_int = 32;
+pub const EAI_BADFLAGS: c_int = -1;
+pub const EAI_NONAME: c_int = -2;
+pub const EAI_AGAIN: c_int = -3;
+pub const EAI_FAIL: c_int = -4;
+pub const EAI_FAMILY: c_int = -6;
+pub const EAI_SOCKTYPE: c_int = -7;
+pub const EAI_SERVICE: c_int = -8;
+pub const EAI_MEMORY: c_int = -10;
+pub const EAI_SYSTEM: c_int = -11;
+pub const EAI_OVERFLOW: c_int = -12;
 
 pub use crate::unix::newlib::generic::sigset_t;
 
