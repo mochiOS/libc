@@ -1,6 +1,14 @@
 use crate::prelude::*;
 
 pub type clock_t = c_ulong;
+#[path = "termios_type.rs"]
+mod termios_type;
+pub use self::termios_type::termios;
+const _: [(); 56] = [(); core::mem::size_of::<termios>()];
+const _: [(); 4] = [(); core::mem::align_of::<termios>()];
+const _: [(); 16] = [(); core::mem::offset_of!(termios, c_cc)];
+const _: [(); 48] = [(); core::mem::offset_of!(termios, c_ispeed)];
+const _: [(); 52] = [(); core::mem::offset_of!(termios, c_ospeed)];
 s! {
     pub struct utsname {
         pub sysname: [c_char; 256],
@@ -505,6 +513,9 @@ pub const SIGUSR2: c_int = 12;
 pub const SIGALRM: c_int = 14;
 
 pub const PTHREAD_STACK_MIN: size_t = 16384;
+#[path = "termios.rs"]
+mod termios_constants;
+pub use self::termios_constants::*;
 pub const WNOHANG: c_int = 1;
 pub const WUNTRACED: c_int = 2;
 
@@ -696,6 +707,9 @@ extern "C" {
     pub fn setuid(uid: crate::uid_t) -> c_int;
     pub fn setpgid(pid: crate::pid_t, pgid: crate::pid_t) -> c_int;
     pub fn setsid() -> crate::pid_t;
+    pub fn tcgetwinsize(fd: c_int, size: *mut crate::winsize) -> c_int;
+    pub fn tcsetwinsize(fd: c_int, size: *const crate::winsize) -> c_int;
+    pub fn openpty(master: *mut c_int, slave: *mut c_int, name: *mut c_char, attributes: *const crate::termios, size: *const crate::winsize) -> c_int;
     pub fn tcgetpgrp(fd: c_int) -> crate::pid_t;
     pub fn tcgetsid(fd: c_int) -> crate::pid_t;
     pub fn tcsetpgrp(fd: c_int, pgrp: crate::pid_t) -> c_int;

@@ -104,6 +104,12 @@ fn main() {
         1,
     );
 
+    // The mochiOS SDK has no c_line and always stores both speed fields.
+    // Keeping generic newlib's struct would under-allocate tcgetattr output.
+    let termios = "pub struct termios {";
+    assert!(source.contains(termios));
+    source = source.replacen(termios, "#[cfg(not(target_os = \"mochios\"))]\n    pub struct termios {", 1);
+
     let family_branch = "if #[cfg(target_os = \"horizon\")] {\n        pub type sa_family_t = u16;";
     assert!(source.contains(family_branch));
     source = source.replacen(
