@@ -613,6 +613,7 @@ extern "C" {
     pub fn nanosleep(request: *const crate::timespec, remaining: *mut crate::timespec) -> c_int;
     pub fn futimens(fd: c_int, times: *const crate::timespec) -> c_int;
     pub fn lutimes(path: *const c_char, times: *const crate::timeval) -> c_int;
+    pub fn getexecname() -> *const c_char;
     pub fn utimensat(
         fd: c_int,
         path: *const c_char,
