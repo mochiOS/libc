@@ -516,42 +516,9 @@ pub const PTHREAD_STACK_MIN: size_t = 16384;
 #[path = "termios.rs"]
 mod termios_constants;
 pub use self::termios_constants::*;
-pub const WNOHANG: c_int = 1;
-pub const WUNTRACED: c_int = 2;
-
-safe_f! {
-    pub const fn WIFSTOPPED(status: c_int) -> bool {
-        (status & 0xff) == 0x7f
-    }
-
-    pub const fn WSTOPSIG(status: c_int) -> c_int {
-        WEXITSTATUS(status)
-    }
-
-    pub const fn WIFSIGNALED(status: c_int) -> bool {
-        ((status & 0x7f) > 0) && ((status & 0x7f) < 0x7f)
-    }
-
-    pub const fn WTERMSIG(status: c_int) -> c_int {
-        status & 0x7f
-    }
-
-    pub const fn WIFEXITED(status: c_int) -> bool {
-        (status & 0xff) == 0
-    }
-
-    pub const fn WEXITSTATUS(status: c_int) -> c_int {
-        (status >> 8) & 0xff
-    }
-
-    pub const fn WIFCONTINUED(_status: c_int) -> bool {
-        true
-    }
-
-    pub const fn WCOREDUMP(_status: c_int) -> bool {
-        false
-    }
-}
+#[path = "wait_status.rs"]
+mod wait_status;
+pub use self::wait_status::*;
 
 extern "C" {
     pub fn uname(output: *mut utsname) -> c_int;
