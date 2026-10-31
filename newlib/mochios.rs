@@ -612,6 +612,7 @@ extern "C" {
     pub fn sched_yield() -> c_int;
     pub fn nanosleep(request: *const crate::timespec, remaining: *mut crate::timespec) -> c_int;
     pub fn futimens(fd: c_int, times: *const crate::timespec) -> c_int;
+    pub fn lutimes(path: *const c_char, times: *const crate::timeval) -> c_int;
     pub fn utimensat(
         fd: c_int,
         path: *const c_char,
