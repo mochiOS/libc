@@ -19,7 +19,8 @@ s! {
     }
 }
 const _: [(); 1280] = [(); core::mem::size_of::<utsname>()];
-// The x86_64 SDK/newlib runtime uses signed 64-bit seconds, not newlib's
+const _: [(); 1280] = [(); core::mem::size_of::<crate::utsname>()];
+// The LP64 SDK/newlib runtime uses signed 64-bit seconds, not newlib's
 // generic 32-bit time_t. Size alone cannot detect timespec's padding mismatch.
 const _: [(); 8] = [(); core::mem::size_of::<crate::time_t>()];
 const _: [(); 8] = [(); core::mem::align_of::<crate::time_t>()];
